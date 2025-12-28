@@ -1,0 +1,7 @@
+O3SerialWriter	KEYWORD1
+O3SerialWriterOptions	KEYWORD1
+O3LogLevel	KEYWORD1
+debug	KEYWORD2
+info	KEYWORD2
+warn	KEYWORD2
+error	KEYWORD2
