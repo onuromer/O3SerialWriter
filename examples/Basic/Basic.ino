@@ -9,10 +9,13 @@ void setup() {
   options.showLevel = true;
   options.minLevel = O3LogLevel::Debug;
   options.partSeparator = " ";
+  options.lineLength = 32;
+  options.lineCharacter = '=';
 
   sw.begin(Serial, 115200, options);
 
   sw.info("Boot");
+  sw.drawLine();
 }
 
 void loop() {

@@ -5,3 +5,5 @@ debug	KEYWORD2
 info	KEYWORD2
 warn	KEYWORD2
 error	KEYWORD2
+drawLine	KEYWORD2
+printOptions	KEYWORD2

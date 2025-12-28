@@ -10,6 +10,8 @@ Lightweight Arduino logging library for consistent Serial output. Adds optional 
 - Log levels: Debug, Info, Warn, Error
 - Minimum log level filtering
 - Variadic logging with any number of parts
+- Separator helper: `drawLine()` prints a horizontal line with the current header; configurable via options
+- Introspection helper: `printOptions()` emits the current configuration in one line
 - No dynamic memory allocation, prints directly to `Stream`
 
 ## Installation
@@ -80,6 +82,8 @@ Example output:
 - `showLevel`: prints `DEBUG/INFO/WARN/ERROR` when true
 - `minLevel`: filters out logs below this level
 - `partSeparator`: string printed between variadic parts
+- `lineLength`: default line length used by `drawLine()` (default 40)
+- `lineCharacter`: default character used by `drawLine()` (default `-`)
 
 Example:
 
@@ -95,6 +99,20 @@ sw.debug("This will not print");
 sw.warn("Disconnected", "reason", 19);
 ```
 
+## Inspecting options
+
+Use `printOptions()` to emit the current configuration (prefix, millis, level, minLevel, separators, line settings):
+
+```cpp
+sw.printOptions();
+```
+
+Example output:
+
+```
+[BLE] 1234 INFO: options enabled=true prefix="BLE" showMillis=true showLevel=true minLevel=WARN partSeparator=" | " lineLength=40 lineCharacter='-'
+```
+
 ## Working with multiple `print()` calls
 
 If you want to manually build a line, the header is printed only once per line:
@@ -103,6 +121,21 @@ If you want to manually build a line, the header is printed only once per line:
 sw.printWithLevel(O3LogLevel::Info, "Backoff ");
 sw.printWithLevel(O3LogLevel::Info, 250);
 sw.printlnWithLevel(O3LogLevel::Info, " ms");
+```
+
+## Drawing separators
+
+Call `drawLine()` to print a horizontal line with the usual header (prefix/millis/level). You can configure defaults via `O3SerialWriterOptions::lineLength` and `lineCharacter`, and override per-call when needed:
+
+```cpp
+O3SerialWriterOptions options;
+options.lineLength = 32;
+options.lineCharacter = '=';
+
+sw.begin(Serial, 115200, options);
+
+sw.drawLine();        // uses defaults from options (32 '=' characters)
+sw.drawLine(48, '#'); // override per call
 ```
 
 ## License

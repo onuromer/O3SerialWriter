@@ -19,6 +19,8 @@ struct O3SerialWriterOptions {
   bool showLevel = true;                   // If true, prints INFO/WARN/...
   O3LogLevel minLevel = O3LogLevel::Debug; // Minimum level to print
   const char* partSeparator = " ";         // Separator between parts in variadic logs
+  size_t lineLength = 40;                  // Default length for drawLine()
+  char lineCharacter = '-';                // Default character for drawLine()
 };
 
 class O3SerialWriter {
@@ -45,6 +47,8 @@ public:
     showMillis = options.showMillis;
     showLevel = options.showLevel;
     minLevel = options.minLevel;
+    lineLength = options.lineLength > 0 ? options.lineLength : defaultLineLength;
+    lineCharacter = options.lineCharacter != '\0' ? options.lineCharacter : defaultLineCharacter;
     resetLineState();
   }
 
@@ -81,6 +85,45 @@ public:
   void println() {
     if (!canWrite(defaultLevel)) return;
     ensureLineHeader(defaultLevel);
+    out->println();
+    resetLineState();
+  }
+
+  // Quick visual separator: prints a horizontal line with header and newline.
+  void drawLine(size_t length = 0, char character = '\0') {
+    if (!canWrite(defaultLevel)) return;
+    ensureLineHeader(defaultLevel);
+    const size_t effectiveLength = length > 0 ? length : lineLength;
+    const char effectiveChar = character != '\0' ? character : lineCharacter;
+    for (size_t i = 0; i < effectiveLength; ++i) {
+      out->print(effectiveChar);
+    }
+    out->println();
+    resetLineState();
+  }
+
+  // Prints current configuration in one line for quick diagnostics.
+  void printOptions() {
+    if (!canWrite(defaultLevel)) return;
+    ensureLineHeader(defaultLevel);
+    out->print("options ");
+    out->print("enabled=");
+    out->print(enabled ? "true" : "false");
+    out->print(" prefix=\"");
+    out->print(prefixBuffer);
+    out->print("\" showMillis=");
+    out->print(showMillis ? "true" : "false");
+    out->print(" showLevel=");
+    out->print(showLevel ? "true" : "false");
+    out->print(" minLevel=");
+    out->print(levelText(minLevel));
+    out->print(" partSeparator=\"");
+    out->print(partSeparatorBuffer);
+    out->print("\" lineLength=");
+    out->print(lineLength);
+    out->print(" lineCharacter='");
+    out->print(lineCharacter);
+    out->print('\'');
     out->println();
     resetLineState();
   }
@@ -158,6 +201,11 @@ private:
 
   static constexpr size_t partSepMaxLen = 8;
   char partSeparatorBuffer[partSepMaxLen] = " ";
+
+  static constexpr size_t defaultLineLength = 40;
+  static constexpr char defaultLineCharacter = '-';
+  size_t lineLength = defaultLineLength;
+  char lineCharacter = defaultLineCharacter;
 
   // Safe copy into fixed-size buffer (always null-terminated).
   void copyPrefix(const char* value) {
